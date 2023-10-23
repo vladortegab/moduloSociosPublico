@@ -1,10 +1,13 @@
 package com.modulosocios.ModuloSocios.services;
 
 import com.modulosocios.ModuloSocios.dtos.SociosDto;
+import com.modulosocios.ModuloSocios.dtos.SociosNuevaDto;
 import com.modulosocios.ModuloSocios.enums.EstadoVerificacionEnum;
 import com.modulosocios.ModuloSocios.mapper.SocioMapper;
 import com.modulosocios.ModuloSocios.model.Socios;
+import com.modulosocios.ModuloSocios.model.SociosNueva;
 import com.modulosocios.ModuloSocios.repository.AdministradorRepository;
+import com.modulosocios.ModuloSocios.repository.SociosNuevaRepository;
 import com.modulosocios.ModuloSocios.repository.SociosRepository;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -24,22 +27,25 @@ import java.util.Optional;
 @Transactional
 public class SociosServices {
     private final SociosRepository sociosRepository;
+    private final SociosNuevaRepository sociosNuevaRepository;
     private final SocioMapper socioMapper;
 
     private final AdministradorRepository administradorRepository;
     private final Logger log = LoggerFactory.getLogger(SociosServices.class);
 
     //Inyeccion Dependencias por Constructor
-    public SociosServices(SociosRepository sociosRepository, SocioMapper socioMapper, AdministradorRepository administradorRepository) {
+    public SociosServices(SociosRepository sociosRepository, SocioMapper socioMapper, AdministradorRepository administradorRepository, SociosNuevaRepository sociosNuevaRepository ) {
         this.sociosRepository = sociosRepository;
         this.socioMapper = socioMapper;
         this.administradorRepository = administradorRepository;
+        this.sociosNuevaRepository = sociosNuevaRepository;
     }
-    public SociosDto findById(Integer id) {
+
+    public SociosNuevaDto findById(Integer id) {
         if (Objects.isNull(id)) {
             throw new RuntimeException("ex.socios.object_not_found");
         }
-        Optional<Socios> sociosOptional = this.sociosRepository.findById(id);
+        Optional<SociosNueva> sociosOptional = this.sociosNuevaRepository.findById(id);
         if(sociosOptional.isPresent()){
             return this.socioMapper.toDto(sociosOptional.get());
         }else{
@@ -64,7 +70,7 @@ public class SociosServices {
     
 
     
-    public Socios createSocios(Socios socios, Integer adminId) {
+ /*    public Socios createSocios(Socios socios, Integer adminId) {
         var admin = administradorRepository.findById(adminId);
         if (admin.isEmpty()) {
             throw new RuntimeException("Error");
@@ -76,7 +82,16 @@ public class SociosServices {
         } catch (DataIntegrityViolationException e) {
             throw new RuntimeException(e);
         }
+    } */
+    public SociosNueva createSocios(SociosNueva sociosCrear ) {
+        
+        try {
+            return sociosNuevaRepository.save(sociosCrear);
+        } catch (DataIntegrityViolationException e) {
+            throw new RuntimeException(e);
+        }
     }
+    
      public Socios updateSocios (Socios socios) {
         if (Objects.isNull(socios.getId())){
             throw new RuntimeException("ex.student.object_not_found");
